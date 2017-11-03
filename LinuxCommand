@@ -5,3 +5,18 @@ centos check system version ==> cat /etc/redhat-release
 备份yum原来的repo文件 ==> mv CentOS*.* backup/
 下载新repo文件 ==> wget http://mirrors.aliyun.com/repo/Centos-7.repo
 执行yum源更新命令 ==> yum clean all
+
+3 mysql
+blog==>http://www.linuxidc.com/Linux/2016-09/135288.htm
+下载mysql源安装包 ==>wget http://dev.mysql.com/get/mysql57-community-release-el7-8.noarch.rpm
+安装mysql源==>yum localinstall mysql57-community-release-el7-8.noarch.rpm
+检查mysql源是否安装成功==>yum repolist enabled | grep "mysql.*-community.*"
+安装MySQL==>yum install mysql-community-server
+启动MySQL服务==>systemctl start mysqld
+查看MySQL的启动状态==>systemctl status mysqld
+查看root本地登录密码==>grep 'temporary password' /var/log/mysqld.log
+登录mysql==>mysql -u root -p
+修改密码==>mysql> ALTER USER 'root'@'localhost' IDENTIFIED BY 'MyNewPass4!';
+修改密码策略==>/etc/my.cnf增加validate_password = off
+允许root用户远程访问==>GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' IDENTIFIED BY 'password' WITH GRANT OPTION;
+配置默认编码为utf8==>/etc/my.cnf  增加 character_set_server=utf8  init_connect='SET NAMES utf8'
