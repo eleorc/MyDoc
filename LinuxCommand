@@ -1,0 +1,7 @@
+1 system
+centos check system version ==> cat /etc/redhat-release
+
+2 yum
+备份yum原来的repo文件 ==> mv CentOS*.* backup/
+下载新repo文件 ==> wget http://mirrors.aliyun.com/repo/Centos-7.repo
+执行yum源更新命令 ==> yum clean all
