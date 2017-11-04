@@ -5,3 +5,36 @@
 在x86-64指令架构中，地址为quadword即8字节的数据。指针的本质就是地址，所以指针的长度是固定的。
 之所以还要为指针声明类型，是因为指针指向的内存地址的数据需要确定一个长度。
 编译器需要根据指针的类型，来决定指针运算时的“伸缩量”。例如 int *p ; 那么p+1将被处理成p的地址加上4个字节。
+
+2 coding model编程模型
+开发者编写了一个函数A，但是函数A的运行时机与运行方式是由程序框架决定的。
+好多时候编程都是针对框架的编程，框架定义了一组程序调度的规则，开发者按照框架的要求实现一些具体的程序单元，然后这些单元又被框架调用。
+做一个理解框架运行原理的coder。
+
+3 如何运行python协程（coroutine）
+import asyncio
+import aiomysql
+async def create_pool(loop, **kw):
+    print('create database connection pool...')
+    global __pool
+    __pool = await aiomysql.create_pool(
+        host=kw.get('host', '192.168.255.128'),
+        port=kw.get('port', 3306),
+        user=kw['user'],
+        password=kw['password'],
+        db=kw['db'],
+        charset=kw.get('charset', 'utf8'),
+        autocommit=kw.get('autocommit', True),
+        maxsize=kw.get('maxsize', 10),
+        minsize=kw.get('minsize', 1),
+        loop=loop
+    )
+    print('pool created...')
+loop = asyncio.get_event_loop()
+coro = create_pool(loop,user='root',password='root',db='test')
+loop.run_until_complete(coro)
+
+4 语境
+站在解释器的角度去看一行代码。关键字确定一个语境。
+例如，class Model(dict, metaclass=ModelMetaclass):
+class关键字确定了这行代码是一个类的定义，Model是类名，dict是父类，metaclass指明了类构造时要执行的一段代码
