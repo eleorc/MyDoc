@@ -11,30 +11,7 @@
 好多时候编程都是针对框架的编程，框架定义了一组程序调度的规则，开发者按照框架的要求实现一些具体的程序单元，然后这些单元又被框架调用。
 做一个理解框架运行原理的coder。
 
-3 如何运行python协程（coroutine）
-import asyncio
-import aiomysql
-async def create_pool(loop, **kw):
-    print('create database connection pool...')
-    global __pool
-    __pool = await aiomysql.create_pool(
-        host=kw.get('host', '192.168.255.128'),
-        port=kw.get('port', 3306),
-        user=kw['user'],
-        password=kw['password'],
-        db=kw['db'],
-        charset=kw.get('charset', 'utf8'),
-        autocommit=kw.get('autocommit', True),
-        maxsize=kw.get('maxsize', 10),
-        minsize=kw.get('minsize', 1),
-        loop=loop
-    )
-    print('pool created...')
-loop = asyncio.get_event_loop()
-coro = create_pool(loop,user='root',password='root',db='test')
-loop.run_until_complete(coro)
-
-4 语境
+3 语境
 站在解释器的角度去看一行代码。关键字确定一个语境。
 例如，class Model(dict, metaclass=ModelMetaclass):
 class关键字确定了这行代码是一个类的定义，Model是类名，dict是父类，metaclass指明了类构造时要执行的一段代码
