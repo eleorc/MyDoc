@@ -1,0 +1,81 @@
+
+###[part 1] the language
+
+[item 1]class关键字
+class Model(dict, metaclass=ModelMetaclass):class关键字确定了这行代码是一个类的定义，Model是类名，dict是父类，metaclass指明了类构造时要执行的一段代码
+
+[item 2]特殊方法
+格式为__xxx__的方法是特殊方法，该方法由python解释器根据特殊的语句触发。例如，class语境中定义的方法 def __init__(self, **kw)，将由创建类的对象时执行。
+__init__(self, **kw)==>创建类对象时执行
+__getattr__(self, key)==>执行.运算符时触发，例如s.name
+__setattr__(self, key, value)==>属性赋值时触发
+
+[item 3]self关键字(也许不是关键字)？或者说类似于java中的this
+class语境中的函数定义，所有函数的第一个变量，如果写成self，那么是对当前实例的引用。
+
+###[part 2] 机制
+
+[item 4]metaclass
+Python解释器在加载一个class定义时，会创建一个内存中的class对象cls，代表这个class定义。
+如果class的定义包含关键字metaclass，例如，class Model(dict, metaclass=ModelMetaclass):
+这时，python解释器会把创建好的class对象cls传入metaclass指向的class定义中，并执行一个特殊方法def __new__(cls, name, bases, attrs):
+例如上面的例子，在加载Model时就会执行这个方法，cls为Model的内存对象。name为'Model',bases是Model的父类tuple,attrs是Model中定义的所有属性。
+需要注意的是，Model类的所有子类，在被加载时，也会调用__new__(cls, name, bases, attrs)，并且传入的cls是对应的子类的实例。
+测试metaclass的运行时机
+class StudentMetaClass(type):
+    def __new__(cls, name, bases, attrs):
+      print('print metaclass __new__ method parameters')	
+      print('cls ==> %s' % cls)
+      print('name ==> %s' % name)
+      print('bases ==> %s' % bases)
+      print('attrs ==> %s' % attrs)
+      return type.__new__(cls, name, bases, attrs)
+class Student(dict,metaclass=StudentMetaClass):
+    print('load class Student')
+    id = '1'
+    def dosomething():
+      pass
+输出为：
+load class Student
+print metaclass __new__ method parameters
+cls ==> <class '__main__.StudentMetaClass'>
+name ==> Student
+bases ==> <class 'dict'>
+attrs ==> {'__module__': '__main__', 'id': '1', 'dosomething': <function Student
+.dosomething at 0x0000000000A6D620>, '__qualname__': 'Student'}
+结论：
+(1)python在加载class语句块时，语句块内的每一行代码都会被执行。
+(2)如果class指定了metaclass关键字，那么python解释器会去执行metaclass对应类的__new__方法。
+(3)__new__方法最后需要使用type.__new__(cls, name, bases, attrs)返回,否则类型没有创建成功。
+(4)__new__的参数中，第一个参数cls的值是metaclass类型
+(5)class中定义的函数，也会被放进attrs中
+
+[item 5]Coroutine
+协程，属于一种特殊的函数调用机制。
+描述性解释：函数A先调用函数B，B返回后，A继续调用函数C。这是通常的函数调用流程。
+在单线程普查函数调用过程中，如果A调用B，在B的执行过程中，有一个耗时的操作指令（比如IO），那么A会等待B完成，然后继续。
+协程不是这样，在单线程函数调用过程中，A调用B，B的执行过程可以中断（通过发送一个事件x中断），使得A可以继续执行后面的代码，比如调用C。
+事件x会被某种机制处理，处理完成后会发送一个通知给A，这样A可以继续B中断之后的代码。
+如果函数B满足这种特性，那么B就是一个协程。
+如何运行python协程（coroutine）
+import asyncio
+import aiomysql
+async def create_pool(loop, **kw):
+    print('create database connection pool...')
+    global __pool
+    __pool = await aiomysql.create_pool(
+        host=kw.get('host', '192.168.255.128'),
+        port=kw.get('port', 3306),
+        user=kw['user'],
+        password=kw['password'],
+        db=kw['db'],
+        charset=kw.get('charset', 'utf8'),
+        autocommit=kw.get('autocommit', True),
+        maxsize=kw.get('maxsize', 10),
+        minsize=kw.get('minsize', 1),
+        loop=loop
+    )
+    print('pool created...')
+loop = asyncio.get_event_loop()
+coro = create_pool(loop,user='root',password='root',db='test')
+loop.run_until_complete(coro)
