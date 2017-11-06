@@ -15,7 +15,7 @@ classÓï¾³ÖĞµÄº¯Êı¶¨Òå£¬ËùÓĞº¯ÊıµÄµÚÒ»¸ö±äÁ¿£¬Èç¹ûĞ´³Éself£¬ÄÇÃ´ÊÇ¶Ôµ±Ç°ÊµÀıµÄÒıÓ
 
 ###[part 2] »úÖÆ
 
-[item 4]metaclass
+[item 1]metaclass
 Python½âÊÍÆ÷ÔÚ¼ÓÔØÒ»¸öclass¶¨ÒåÊ±£¬»á´´½¨Ò»¸öÄÚ´æÖĞµÄclass¶ÔÏócls£¬´ú±íÕâ¸öclass¶¨Òå¡£
 Èç¹ûclassµÄ¶¨Òå°üº¬¹Ø¼ü×Ömetaclass£¬ÀıÈç£¬class Model(dict, metaclass=ModelMetaclass):
 ÕâÊ±£¬python½âÊÍÆ÷»á°Ñ´´½¨ºÃµÄclass¶ÔÏócls´«ÈëmetaclassÖ¸ÏòµÄclass¶¨ÒåÖĞ£¬²¢Ö´ĞĞÒ»¸öÌØÊâ·½·¨def __new__(cls, name, bases, attrs):
@@ -50,7 +50,7 @@ attrs ==> {'__module__': '__main__', 'id': '1', 'dosomething': <function Student
 (4)__new__µÄ²ÎÊıÖĞ£¬µÚÒ»¸ö²ÎÊıclsµÄÖµÊÇmetaclassÀàĞÍ
 (5)classÖĞ¶¨ÒåµÄº¯Êı£¬Ò²»á±»·Å½øattrsÖĞ
 
-[item 5]Coroutine
+[item 2]Coroutine
 Ğ­³Ì£¬ÊôÓÚÒ»ÖÖÌØÊâµÄº¯Êıµ÷ÓÃ»úÖÆ¡£
 ÃèÊöĞÔ½âÊÍ£ºº¯ÊıAÏÈµ÷ÓÃº¯ÊıB£¬B·µ»Øºó£¬A¼ÌĞøµ÷ÓÃº¯ÊıC¡£ÕâÊÇÍ¨³£µÄº¯Êıµ÷ÓÃÁ÷³Ì¡£
 ÔÚµ¥Ïß³ÌÆÕ²éº¯Êıµ÷ÓÃ¹ı³ÌÖĞ£¬Èç¹ûAµ÷ÓÃB£¬ÔÚBµÄÖ´ĞĞ¹ı³ÌÖĞ£¬ÓĞÒ»¸öºÄÊ±µÄ²Ù×÷Ö¸Áî£¨±ÈÈçIO£©£¬ÄÇÃ´A»áµÈ´ıBÍê³É£¬È»ºó¼ÌĞø¡£
@@ -79,3 +79,116 @@ async def create_pool(loop, **kw):
 loop = asyncio.get_event_loop()
 coro = create_pool(loop,user='root',password='root',db='test')
 loop.run_until_complete(coro)
+
+[item 3]×°ÊÎÆ÷Ä£Ê½
+###code
+def get(path):
+    print('path is %s' % path)
+
+@get('index')
+def test():
+    print('test')
+###code
+ÒÔÉÏ´úÂë»áÊä³öÔ¤ÆÚµÄ×Ö·û´®£¬È»ºó±¨´í£º
+path is index
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: 'NoneType' object is not callable
+
+python½âÊÍÆ÷ÔÚ´¦Àí·ûºÅ@Ê±£¬»áÔ¤ÆÚ@ºóÃæÊÇÒ»¸ö¸ß½×º¯Êı(º¯Êı»á·µ»ØÒ»¸öº¯Êı)£¬²¢ÇÒpython½âÊÍÆ÷»á×Ô¶¯µ÷ÓÃ·µ»ØµÄº¯Êı
+###code
+def get(path):
+    print('path is %s' % path)
+    def a_func():
+        print('a_func is a func')
+    return a_func
+
+@get('index')
+def test():
+    print('test')
+###code
+###output 
+path is index
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+TypeError: a_func() takes 0 positional arguments but 1 was given
+###output
+´ÓÊä³ö¿ÉÒÔ¿´µ½£¬python½âÊÍÆ÷È·Êµµ÷ÓÃÁËº¯Êıa_func£¬²¢ÇÒÎªÕâ¸öµ÷ÓÃ´«µİÁËÒ»¸ö²ÎÊı£¡µ«ÊÇÉÏÃæµÄ´úÂëÖĞ£¬a_func²¢Ã»ÓĞ¶¨ÒåÎª½ÓÊÕÒ»¸ö²ÎÊı£¬¿ò¼ÜÊµ¼ÊµÄµ÷ÓÃÓëº¯ÊıÖĞµÄ¶¨Òå²»Æ¥Åä£¬ËùÒÔ±¨´íÁË¡£
+###code
+def get(path):
+    print('path is %s' % path)
+    def a_func(func):
+        print('a_func is a func')
+        print('func type is %s , func name is %s' % (type(func),func.__name__))
+    return a_func
+
+@get('index')
+def test():
+    print('test')
+###code
+###output
+path is index
+a_func is a func
+func type is <class 'function'> , func name is test
+###output
+ÕâÀï£¬´úÂë¿ÉÒÔÔËĞĞ£¬²¢ÇÒ²»±¨´íÁË¡£
+###Ğ¡½á
+python½âÊÍÆ÷¶ÔÓÚ
+@xxx
+func()
+Óï¾ä¿éµÄ´¦Àí¡£
+(1)µ÷ÓÃº¯Êıxxx
+(2)º¯Êıxxx±ØĞë·µ»ØÒ»¸öº¯Êıyyy
+(3)µ÷ÓÃyyy(func)
+
+Èç¹û×°ÊÎÆ÷Ä£Ê½ĞèÒª·µ»ØÒ»¸öº¯Êı£¬ÄÇÃ´ÔÚa_funcÖĞĞèÒªÔÙ¶¨ÒåÒ»¸öº¯Êı£¬²¢·µ»Ø¡£
+###code
+def get(path):
+    print('path is %s' % path)
+    def a_func(func):
+        print('a_func is a func')	
+        def wrapper(*args,**kw):	
+            print('wrapper do something')
+            func(*args,**kw)
+        return wrapper 
+    return a_func
+
+@get('index')
+def test(s):
+    print('test %s' % s)
+###code
+###output
+path is index
+a_func is a func
+###output
+pythonÔÚ´¦ÀíÉÏÃæµÄ´úÂë¿éÊ±£¬·µ»ØÁËÒ»¸öº¯Êıwrapper£¬ÕâÊ±£¬testÕâ¸öº¯ÊıÔÚÄÚ´æÖĞµÄÊı¾İÆäÊµÒÑ¾­±»wrapperÌæ´ú¡£
+test==>wrapper
+func==>Ô­ÀíµÄtest£¬¼´´úÂëÎªprint('test %s' % s)
+¿ÉÒÔÑéÖ¤testµÄnameÊôĞÔ£¬test.__name__ÖµÎª'wrapper'
+###Ğ¡½á
+(4)Õâ¸öÓï¾ä¿éÕûÌå·µ»ØÒ»¸öº¯Êı£¬testÊÇº¯ÊıÒıÓÃ£¬µ«ÊÇº¯Êı¶ÔÏóÒÑ¾­±»Ìæ»»³ÉwrapperÖĞµÄÄÚÈİ¡£
+
+###code
+def get(path):
+    print('path is %s' % path)
+    def a_func(func):
+        print('a_func is a func')	
+        @functools.wraps(func)		
+        def wrapper(*args,**kw):	
+            print('wrapper do something')
+            func(*args,**kw)
+        return wrapper 
+    return a_func
+
+@get('index')
+def test(s):
+    print('test %s' % s)
+###code
+
+###×Ü½á
+(1)python½âÊÍÆ÷¶ÔÓÚ
+@xxx
+func()
+Óï¾ä¿éµÄ´¦Àí¡£µ÷ÓÃº¯Êıxxx,º¯Êıxxx±ØĞë·µ»ØÒ»¸öº¯Êıyyy,µ÷ÓÃyyy(func)
+(2)×°ÊÎÆ÷Ä£Ê½ÖĞ£¬ÕâÖÖÓï¾ä¿é·µ»ØÁËÒ»¸öÔöÇ¿°æµÄº¯Êı¡£Õâ¸öº¯ÊıµÄÄÚÈİÓÉxxxÖĞµÄwrapperº¯Êı¶¨Òå¡£
+
