@@ -21,3 +21,7 @@ blog==>http://www.linuxidc.com/Linux/2016-09/135288.htm
 修改密码策略==>vi /etc/my.cnf增加validate_password = off
 允许root用户远程访问==>GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' IDENTIFIED BY 'password' WITH GRANT OPTION;
 配置默认编码为utf8==>/etc/my.cnf  增加 character_set_server=utf8  init_connect='SET NAMES utf8'
+创建用户==>CREATE USER 'www'@'%' IDENTIFIED BY 'www';
+
+4 file system
+创建软连接==>
