@@ -2,6 +2,7 @@
 centos check system version ==> cat /etc/redhat-release
 
 2 yum
+yum配置文件路径==>cd /etc/yum.repos.d
 备份yum原来的repo文件 ==> mv CentOS*.* backup/
 下载新repo文件 ==> wget http://mirrors.aliyun.com/repo/Centos-7.repo
 执行yum源更新命令 ==> yum clean all
@@ -16,7 +17,7 @@ blog==>http://www.linuxidc.com/Linux/2016-09/135288.htm
 查看MySQL的启动状态==>systemctl status mysqld
 查看root本地登录密码==>grep 'temporary password' /var/log/mysqld.log
 登录mysql==>mysql -u root -p
-修改密码==>mysql> ALTER USER 'root'@'localhost' IDENTIFIED BY 'MyNewPass4!';
-修改密码策略==>/etc/my.cnf增加validate_password = off
+修改密码==>mysql> ALTER USER 'root'@'localhost' IDENTIFIED BY 'root';
+修改密码策略==>vi /etc/my.cnf增加validate_password = off
 允许root用户远程访问==>GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' IDENTIFIED BY 'password' WITH GRANT OPTION;
 配置默认编码为utf8==>/etc/my.cnf  增加 character_set_server=utf8  init_connect='SET NAMES utf8'

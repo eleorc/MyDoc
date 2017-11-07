@@ -192,3 +192,47 @@ func()
 语句块的处理。调用函数xxx,函数xxx必须返回一个函数yyy,调用yyy(func)
 (2)装饰器模式中，这种语句块返回了一个增强版的函数。这个函数的内容由xxx中的wrapper函数定义。
 
+###code
+def get(path):
+    print('path is %s' % path)
+    def a_func(func):
+        print('a_func is a func')	
+        @functools.wraps(func)		
+        def wrapper(*args,**kw):	
+            print('wrapper do something')
+            func(*args,**kw)
+        return wrapper 
+    return a_func
+
+@get
+def test(s):
+    print('test %s' % s)
+###code
+注意，如果是@xxx不带参数，那么python解释器会把函数test作为参数，调用xxx(func)。
+
+如何定义一个get函数，可以支持@get 和 @get('path')两种情况
+###code
+import types
+import functools
+def get(path):
+    def a_func(func):
+        print('a_func is a func')	
+        @functools.wraps(func)		
+        def wrapper(*args,**kw):	
+            print('wrapper do something')
+            func(*args,**kw)
+        return wrapper 
+    if type(path)==types.FunctionType:
+        return a_func(path)
+    else:
+        return a_func
+
+@get
+def test(s):
+    print('test %s' % s)
+	
+@get('index')
+def test(s):
+    print('test %s' % s)
+###code
+
