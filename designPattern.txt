@@ -1,0 +1,39 @@
+design pattern
+1 OOP programm logic structure in memory (a snapshot)
+(1)all kinds of objects,like business object ,dao,datasource
+(2)a container to hold the objects 
+(3)a thread referenct then objects and sends message to the objects
+2 purpose of design pattern 
+(1)make the thread simple and stable(no need to change)
+(2)make the objcet easy to extent
+
+适配器模式
+http://blog.csdn.net/zhangjg_blog/article/details/18735243
+(1)适配器类实现旧接口，组合新接口。
+(2)原有线程代码仍然按照旧接口发送消息给对象，但是消息的接受者实际上变为了适配器对象。
+(3)适配器对象在处理消息时，把消息传递给组合进来的新接口对象。
+
+模板方法
+(1)thread 
+Template template = context.get('concretTemplate');
+template.run();
+(2)class design 
+abstract class Template{
+	public abstract int a();
+	public abstract int b();
+	public abstract int c();
+	public void run(){
+		int state = a();
+		if(state>0)
+			b();
+		else
+			c();
+	}
+}
+class ConcretTemplate extends Template{
+	public int a(){
+		return 1;
+	}
+	public int b(){};
+	public int c(){};
+}

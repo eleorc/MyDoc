@@ -13,6 +13,17 @@ __setattr__(self, key, value)==>属性赋值时触发
 [item 3]self关键字(也许不是关键字)？或者说类似于java中的this
 class语境中的函数定义，所有函数的第一个变量，如果写成self，那么是对当前实例的引用。
 
+[item 4]函数的参数
+命名关键字参数：
+如果要限制关键字参数的名字，就可以用命名关键字参数，例如，只接收city和job作为关键字参数。这种方式定义的函数如下：
+def person(name, age, *, city, job):
+    print(name, age, city, job)
+如果函数定义中已经有了一个可变参数，后面跟着的命名关键字参数就不再需要一个特殊分隔符*了：
+def person(name, age, *args, city, job):
+    print(name, age, args, city, job)
+命名关键字参数必须传入参数名，这和位置参数不同。如果没有传入参数名，调用将报错：
+使用命名关键字参数时，要特别注意，如果没有可变参数，就必须加一个*作为特殊分隔符。如果缺少*，Python解释器将无法识别位置参数和命名关键字参数
+	
 ###[part 2] 机制
 
 [item 1]metaclass
@@ -235,4 +246,54 @@ def test(s):
 def test(s):
     print('test %s' % s)
 ###code
+
+###[part 3] 框架
+[item 1]aiohttp
+###code
+import logging; logging.basicConfig(level=logging.INFO)
+import asyncio, os, json, time
+from datetime import datetime
+from aiohttp import web
+
+def index(request):
+    return web.Response(body=b'<h1>Awesome</h1>')
+
+@asyncio.coroutine
+def init(loop):
+    app = web.Application(loop=loop)
+    app.router.add_route('GET', '/', index)
+    srv = yield from loop.create_server(app.make_handler(), '127.0.0.1', 9000)
+    logging.info('server started at http://127.0.0.1:9000...')
+    return srv
+
+loop = asyncio.get_event_loop()
+loop.run_until_complete(init(loop))
+loop.run_forever()
+###code
+web框架的核心业务：
+(1)注册url处理函数，把url映射到处理函数，并传递request对象
+(2)使web框架对象成为tcp server的处理器
+request对象的流经的对象
+浏览器==>tcp server==>aiohttp webapp==>url handler function 
+增加一个组件，RequestHandler，用于接受requet对象，调用url handler function 。
+定义RequestHandler
+URL处理函数不一定是一个coroutine，因此我们用RequestHandler()来封装一个URL处理函数。
+RequestHandler是一个类，由于定义了__call__()方法，因此可以将其实例视为函数，
+这样可以把RequestHandler实例通过app.router.add_route('GET', '/', requestHandler)注册到app对象中。
+RequestHandler目的:
+(1)从URL函数中分析其需要接收的参数
+(2)从request中获取必要的参数
+(3)调用URL函数
+(4)?然后把结果转换为web.Response对象?
+###小结
+request对象的旅程
+srv对象创建request对象，reuqest对象被传递给拦截器middlewares
+    app = web.Application(loop=loop, middlewares=[
+        logger_factory, logger_factory,response_factory
+    ])
+依次经过每一个拦截器，
+最后一个拦截器会把request对象交给 AbstractRoute对象，这个对象会根据app中注册的路由信息
+app.router.add_route('GET', '/', index)
+把请求交给用户自定义的url handler
+最后一个拦截器需要将url handler的返回处理成web.Response
 
