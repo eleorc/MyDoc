@@ -7,6 +7,14 @@ design pattern
 (1)make the thread simple and stable(no need to change)
 (2)make the objcet easy to extent
 
+如何谈设计模式
+1、OOP程序的工作原理。
+对象的集合，主线程通过获取对象的引用，发送消息给对象驱动整个系统的数据处理流程。
+2、设计模式的目的
+使得主线程的代码尽量稳定，不改动。使得对象之间的关系可继承、扩展、维护。
+3、举一个具体的例子，比如模板方法。
+
+
 适配器模式
 http://blog.csdn.net/zhangjg_blog/article/details/18735243
 (1)适配器类实现旧接口，组合新接口。
