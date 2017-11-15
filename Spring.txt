@@ -131,6 +131,24 @@ Spring BATCH
 注解是通过反射API获取的。class文件被加载后，注解的信息也被放到了clazz对象中。
 
 
+##########################
+5 Spring cloud
+##########################
+（1）Spring Cloud Config Server
+用途：为其他spring boot app提供配置信息。将配置信息集中管理。
+数据结构：配置信息本质上是key-value结构。配置文件存放配置信息。容器repository（git）存放配置文件。
+信息交互：spring boot app 可以通过配置config server，在启动时从config server中获取配置信息。也可以动态请求config server中变化了的信息。
+内部结构：@EnableConfigServer
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>1.5.2.RELEASE</version>
+        <relativePath /> <!-- lookup parent from repository -->
+    </parent>
+    <dependency>
+        <groupId>org.springframework.cloud</groupId>
+        <artifactId>spring-cloud-config-server</artifactId>
+    </dependency>	
 
 
 
