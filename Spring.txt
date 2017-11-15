@@ -95,6 +95,26 @@ public class MyInvocationHandler implements InvocationHandler {
 ##########################
 3 Spring 应用
 ##########################
+spring boot 
+目的：helps you accelerate and facilitate application development
+(1)spring boot 会自动构建出spring容器，并把需要的对象创建出来，设置好依赖关系。
+(2)智能判断需要在IOC容器中添加哪些对象
+(3)At the same time, Spring Boot doesn’t get in your way.For example, if Thymeleaf is on your path, Spring Boot adds a SpringTemplateEngine to your application context automatically. 
+But if you define your own SpringTemplateEngine with your own settings, then Spring Boot won’t add one. This leaves you in control with little effort on your part.
+(4)Spring Boot doesn’t generate code or make edits to your files. Instead, when you start up your application, Spring Boot dynamically wires up beans and settings and applies them to your application context.
+原理：
+(1)It looks at your classpath and at beans you have configured, makes reasonable assumptions about what you’re missing, and adds it. 
+(2)@SpringBootApplication
+@Configuration
+@EnableAutoConfiguration
+@ComponentScan
+(3)The main() method uses Spring Boot’s SpringApplication.run() method to launch an application. 
+
+
+
+应用场景
+ 
+ 
 spring MVC
 (1)web程序工作原理
 (2)Spring MVC三个层次的处理。
@@ -102,6 +122,13 @@ Spring Security
 Spring BATCH
 结合etl shell脚本谈谈
 
+
+
+##########################
+4 Spring 的一些思考
+##########################
+(1)注解、xml都表达了对应用程序的配置。那么，这些配置是如何被读取的，又是如何影像应用程序的。
+注解是通过反射API获取的。class文件被加载后，注解的信息也被放到了clazz对象中。
 
 
 
