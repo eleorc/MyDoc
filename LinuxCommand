@@ -1,5 +1,9 @@
 1 system
-centos check system version ==> cat /etc/redhat-release
+centos check system version发行版信息 ==> cat /etc/redhat-release
+查看内核版本的命令==>uname -a
+/proc虚拟文件系统，可查询系统运行时信息==>ls /proc 
+查看硬盘和分区分布==>lsblk
+如果要看硬盘和分区的详细信息==>fdisk -l
 
 2 yum
 yum配置文件路径==>cd /etc/yum.repos.d
