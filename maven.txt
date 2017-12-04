@@ -1,0 +1,171 @@
+####################################
+Part 1 基本概念
+####################################
+
+https://www.ibm.com/developerworks/cn/java/j-lo-maven/
+1 什么是 Maven
+(1)项目管理：跨平台的项目管理工具,实现项目的构建、测试、打包和部署。（软件开发周期：需求分析、构建、开发、测试、打包、部署）
+(2)插件实现：Maven 抽象了项目生命周期阶段，在不同的阶段使用不同的已实现插件来完成相应的实际工作
+Maven 本质上是一个插件框架，它的核心并不执行任何具体的构建任务，仅仅定义了抽象的生命周期，所有这些任务都交给插件来完成的。
+每个插件都能完成至少一个任务，每个任务即是一个功能，将这些功能应用在构建过程的不同生命周期中。
+这样既能保证拿来即用，又能避免 maven 本身的繁杂和冗余。
+(3)配置接口：POM文件
+(4)约定的项目目录结构
+
+2 maven与ant
+Ant：
+(1)没有约定的结构，需要指定每一个任务（ XML 编码的指令）。指令中明确告诉 Ant 源码在哪里，结果字节码存储在哪里，如何将这些字节码打包成 JAR 文件。
+(2)Ant 没有生命周期
+(3)配置复杂。必须定义任务和任务之间的依赖，还需要手工定义任务的执行序列和逻辑关系。这就无形中造成了大量的代码重复。
+Maven：约定优先
+(1)有约定的目录结构。
+(2)有生命周期。项目构建的各阶段各任务都由插件实现。
+(3)配置简单。只需遵照约定的目录结构创建项目，再配置文件中生命项目的基本元素，Maven 就会按照顺序完成整个构建过程。Maven 的这些特性在一定程度上大大减少了代码的重复。
+
+表 1. Maven 目录结构
+src/main/java	Application/Library sources
+src/main/resources	Application/Library resources
+src/main/filters	Resource filter files
+src/main/assembly	Assembly descriptors
+src/main/config	Configuration files
+src/main/scripts	Application/Library scripts
+src/main/webapp	Web application sources
+src/test/java	Test sources
+src/test/resources	Test resources
+src/test/filters	Test resource filter files
+src/site	Site
+LICENSE.txt	Project's license
+README.txt	Project's readme
+
+3 项目对象模型 POM
+POM 即 Project Object Module，项目对象模型。
+在 pom.xml 文件中定义了项目的：
+--基本信息
+--源代码
+--配置文件
+--开发者的信息和角色
+--问题追踪系统
+--组织信息
+--项目授权
+--项目的 url
+--以及构建项目所用的插件
+--依赖继承关系
+开发人员需按照 maven 定义的规则进行 POM 文件的编写。
+
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 
+                     http://maven.apache.org/maven-v4_0_0.xsd"> 
+ <modelVersion>4.0.0</modelVersion> 
+ <! – The Basics – > 
+ <groupId> … </groupId> 
+ <artifactId> … </artifactId> 
+ <version> … </version> 
+ <packaging> … </packaging> 
+ <dependencies> … </dependencies> 
+ <parent> … </parent> 
+ <dependencyManagement> … </dependencyManagement> 
+ <modules> … </modules> 
+ <properties> … </properties> 
+ <! – Build Settings – > 
+ <build> … </build> 
+ <reporting> … </reporting> 
+ <! – More Project Information – > 
+ <name> … </name> 
+ <description> … </description> 
+ <url> … </url> 
+ <inceptionYear> … </inceptionYear> 
+ <licenses> … </licenses> 
+ <organization> … </organization> 
+ <developers> … </developers> 
+ <contributors> … </contributors> 
+ <! – Environment Settings – > 
+ <issueManagement> … </issueManagement> 
+ <ciManagement> … </ciManagement> 
+ <mailingLists> … </mailingLists> 
+ <scm> … </scm> 
+ <prerequisites> … </prerequisites> 
+ <repositories> … </repositories> 
+ <pluginRepositories> … </pluginRepositories> 
+ <distributionManagement> … </distributionManagement> 
+ <profiles> … </profiles> 
+</project>
+
+project 的坐标：groupId artifactId version 
+
+4 将生命周期的阶段与插件目标相互绑定
+例如清单 2 中的代码就是要在 validate 这个阶段执行 maven-antrun-plugin 的 run 目标，具体的任务在 <target></target> 元素中定义。
+清单 2. 插件
+<plugins> 
+    <plugin> 
+        <groupId>org.apache.maven.plugins</groupId> 
+        <artifactId>maven-antrun-plugin</artifactId> 
+        <version>1.6</version> 
+<executions> 
+<execution> 
+    <id>version</id> 
+   <phase>validate</phase> 
+   <configuration> 
+<target> 
+   具体任务
+</target> 
+</configuration> 
+<goals> 
+<goal>  run  </goal> 
+    </goals> 
+</execution> 
+    </executions> 
+    </plugin> 
+</plugins>
+
+5 仓库
+Maven 项目中的插件，依赖和项目构建的输出都可以由 Maven 的坐标进行唯一的区分，基于这种机制，Maven 将所有项目的构件文件放置在一个统一的位置，也就是 Maven 仓库。
+所有 Maven 项目可以从同一个 Maven 仓库中获取自己所需要的依赖 JAR，这节省了磁盘资源。
+实际的 Maven 项目中不需要存储依赖的文件，只需要在 POM 文件中生成依赖关系，在构建的时候 Maven 就会自动去仓库中下载。
+
+
+####################################
+Part 1 最佳实践
+####################################
+1 dependencies与dependencyManagement的区别
+http://blog.csdn.net/liutengteng130/article/details/46991829
+dependencies即使在子项目中不写该依赖项，那么子项目仍然会从父项目中继承该依赖项（全部继承）
+dependencyManagement里只是声明依赖，并不实现引入。因此子项目需要显示的声明dependencies，表达需要用的依赖。
+如果不在子项目中声明依赖，是不会从父项目中继承下来的。
+只有在子项目中写了该依赖项，并且没有指定具体版本，才会从父项目中继承该项，并且version和scope都读取自父pom。
+另外如果子项目中指定了版本号，那么会使用子项目中指定的jar版本。
+
+父POM通过dependencyManagement声明了一些列项目坐标（包含项目的版本号，使得子POM可以保持使用同一的版本）
+子POM中通过dependencies引入项目依赖，并且不用特别指定版本号，因为版本号从父POM中继承了。
+这样方便管理多个子项目。
+比如springboot项目的父POM
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>1.4.1.RELEASE</version>
+    </parent>
+
+2 传递依赖
+http://blog.csdn.net/liutengteng130/article/details/47000069
+(1)在工程的依赖树上，深度越浅，越被优先选择。
+(2)若两个依赖包处于依赖树上的同一层，则谁在前选择谁。
+总之，避免传递依赖时引起版本问题出现的最佳实践。一般情况下，如果工程直接依赖到某一框架的多个模块，最好全部声明这些依赖。
+
+3 maven项目模块化
+http://blog.csdn.net/qq_16974305/article/details/53178107
+http://juvenshun.iteye.com/blog/305865
+先简单描述一个简单测试项目需求： 
+现需要开发一个用于管理用户信息项目（项目名为：edu），主要功能是管理系统使用用户信息（user）。
+
+划分步骤为： 
+1. 将项目进行划分需要详细了解项目按照垂直划分（项目大的功能需求）可以划分几个模块。 
+2. 将划分出来的项目进行横向划分，分别分出对应的 WEB层、Service接口层、Service接口实现层、Dao层。 
+3. 确定项目的 GroupId（命名规则为：公司网址反写加上项目名 例如：com.hysky.edu） 和 ArtifactId（命名规则为：项目名-横向模块名-垂直模块名 例如：edu-web-user），建立项目基本工程模型。 
+4. 建立一个Maven父工程（packaging为POM类型）用于管理整个项目Jar包、项目所使用的插件、项目发布Maven私库地址、全局POM使用常量，所有的项目都继承这个项目配置。 
+5. 建立一个Maven工程（packaging为jar类型）用于管理整个项目使用的配置文件。例如 jdbc数据库连接地址、注册中心连接地址等等，所有工程需要依赖这个工程。 
+6. 可以建立一个Maven工程（packaging为POM类型）用于管理所有工程统一操作，使用 Maven聚合（module）所有项目，Maven会自动识别项目依赖关系，可以依次进行命令操作。 
+7. 将所有项目都需要使用的公共工具类可以抽取出来，新建立一个 Maven工程（packaging为jar类型），方便所有开发依赖使用工具类。
+
+简单项目划分源代码打包： 链接：http://pan.baidu.com/s/1kV2lrIB 密码：whlb
+
+
