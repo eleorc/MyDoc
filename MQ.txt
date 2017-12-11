@@ -1,0 +1,21 @@
+http://blog.csdn.net/anzhsoft/article/details/19563091
+RabbitMQ Server：维护一条从Producer到Consumer的路线，保证数据能够按照指定的方式进行传输。
+Producer，数据的发送方。
+Message：有两个部分：payload（有效载荷）和label（标签）。payload顾名思义就是传输的数据。label是exchange的名字或者说是一个tag，它描述了payload
+Consumer：数据的接收方
+queue：把queue比作是一个有名字的邮箱。当有Message到达某个邮箱后，RabbitMQ把它发送给它的某个订阅者即Consumer。当然可能会把同一个Message发送给很多的Consumer。
+Exchanges：Exchanges are where producers publish their messages.
+Queues： are where the messages end up and are received by consumers
+Bindings： are how the messages get routed from the exchange to particular queues.
+Connection： 就是一个TCP的连接。Producer和Consumer都是通过TCP连接到RabbitMQ Server的。以后我们可以看到，程序的起始处就是建立这个TCP连接。
+Channels： 虚拟连接。它建立在上述的TCP连接中。数据流动都是在Channel中进行的。也就是说，一般情况是程序起始建立TCP连接，第二步就是建立这个Channel。
+
+为什么使用MQ
+http://blog.csdn.net/cleverutd/article/details/9136323
+主要原因是由于在高并发环境下，由于来不及同步处理，请求往往会发生堵塞，
+比如说，大量的insert，update之类的请求同时到达mysql，直接导致无数的行锁表锁，甚至最后请求会堆积过多，从而触发too many connections错误。
+通过使用消息队列，我们可以异步处理请求，从而缓解系统的压力。
+
+
+
+

@@ -1,0 +1,80 @@
+tocamt作为servlet容器，每个项目的配置接口为项目WEB-INF目录下的web.xml文件
+http://blog.csdn.net/titan_max/article/details/52462447
+web.xml中组件的启动顺序
+listener优先于servlet（<load-on-startup>1</load-on-startup>）
+
+在java工程中，web.xml用来初始化工程配置信息，比如说welcome页面，filter，listener，servlet，servlet-mapping，启动加载级别等等。
+
+常用元素：
+#1 <context-param>元素含有一对参数名和参数值，用作应用的servlet上下文初始化参数。参数名在整个Web应用中必须是惟一的。
+<context-param>  
+   <param-name>param_name</param-name>  
+   <param-value>param_value</param-value>  
+</context-param> 
+在JSP网页中可以使用下列方法来取得:${initParam.param_name}
+在Servlet可以使用下列方法来获得:String param_name=getServletContext().getInitParamter("param_name");
+http://blog.csdn.net/lunatic_xian/article/details/53040941
+用户开发的servlet继承自HttpServlet(抽象类)，并实现了其中的抽象方法，service()等等。getServletContext()方法由HttpServlet实现，即由容器实现。
+
+#2 <filter>在请求和响应对象被servlet处理之前或之后，可以使用过滤器对这两个对象进行操作。
+利用下一节介绍 的filter-mapping元素，过滤器被映射到一个servlet或一个URL模式。
+这个过滤器的filter元素和filter-mapping 元素必须具有相同的名称。
+<filter>  
+  <filter-name>setCharacterEncoding</filter-name>  
+  <filter-class>coreservlet.javaworld.CH11.SetCharacterEncodingFilter</filter-class>  
+  <init-param>  
+     <param-name>encoding</param-name>  
+     <param-value>GB2312</param-value>  
+  </init-param>  
+</filter> 
+
+<filter-mapping> filter-mapping元素用来声明Web应用中的过滤器映射。过滤器可被映射到一个servlet或一个URL模式。
+将过滤器映射到一个 servlet中会造成过滤器作用于servlet上。将过滤器映射到一个URL模式中则可以将过滤器应用于任何资源，
+只要该资源的URL与URL模式匹配。过滤是按照部署描述符的filter-mapping元素出现的顺序执行的。
+<filter>  
+    <filter-name>struts2</filter-name>  
+    <filter-class>org.apache.struts2.dispatcher.ng.filter.StrutsPrepareAndExecuteFilter</filter-class>  
+</filter>  
+<filter-mapping>  
+    <filter-name>struts2</filter-name>  
+    <url-pattern>/*</url-pattern>  
+</filter-mapping> 
+
+#3 <servlet>和<servlet-mapping>
+<servlet>  
+  <servlet-name>ServletName</servlet-name>     
+  <servlet-class>xxxpackage.xxxServlet</servlet-class>   <!--Servlet的类-->  
+  <init-param>                                     <!--初始化一个变量，可看成全局变量，可省略-->  
+    <param-name>参数名称</param-name>              <!--变量名称-->  
+    <param-value>参数值</param-value>              <!--变量值-->  
+  </init-param>  
+</servlet>  
+<servlet-mapping>  
+  <servlet-name>ServletName</servlet-name>                 
+  <url-pattern>/aaa/xxx</url-pattern>                   <!--映射的url路径 -->  
+</servlet-mapping>  
+
+#4 <listener>
+
+#5 <session-cofing>
+<session-config>  
+   <session-timeout>20</session-timeout>  
+</session-config>  
+
+#6 <mime-mapping>
+<mime-mapping>  
+   <extension>doc</extension>  
+   <mime-type>application/vnd.ms-word</mime-type>  
+</mime-mapping>  
+<mime-mapping>  
+   <extension>xls</extension>  
+   <mime-type>application/vnd.ms-excel</mime-type>  
+</mime-mapping>  
+<mime-mapping>  
+   <extension>ppt</extesnion>  
+   <mime-type>application/vnd.ms-powerpoint</mime-type>  
+</mime-mapping>  
+
+
+
+
