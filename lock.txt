@@ -1,0 +1,130 @@
+锁是计算机协调多个进程或线程并发访问某一资源的机制
+http://blog.csdn.net/xifeijian/article/details/20313977
+
+
+数据库-锁（概念、分类、粒度）
+http://blog.csdn.net/zdplife/article/details/48035837
+概念：
+数据库是一个多用户使用的共享资源。当多个用户并发地存取数据时，在数据库中就会产生多个事务同时存取同一数据的情况。
+若对并发操作不加控制就可能会读取和存储不正确的数据，破坏数据库的一致性。
+加锁是实现数据库并发控制的一个非常重要的技术。当事务在对某个数据对象进行操作前，先向系统发出请求，对其加锁。
+加锁后事务就对该数据对象有了一定的控制，在该事务释放锁之前，其他的事务不能对此数据对象进行更新操作。
+
+################################################################################################
+MyISAM表锁
+################################################################################################
+可以通过检查table_locks_waited和table_locks_immediate状态变量来分析系统上的表锁定争夺：
+mysql> show status like 'table%';
++----------------------------+-------+
+| Variable_name              | Value |
++----------------------------+-------+
+| Table_locks_immediate      | 70    |
+| Table_locks_waited         | 0     |
+| Table_open_cache_hits      | 0     |
+| Table_open_cache_misses    | 1     |
+| Table_open_cache_overflows | 0     |
++----------------------------+-------+
+如果Table_locks_waited的值比较高，则说明存在着较严重的表级锁争用情况。
+
+MySQL的表级锁有两种模式：表共享读锁（Table Read Lock）和表独占写锁（Table Write Lock）
+
+对MyISAM表的读操作，不会阻塞其他用户对同一表的读请求，但会阻塞对同一表的写请求；
+对 MyISAM表的写操作，则会阻塞其他用户对同一表的读和写操作；
+MyISAM表的读操作与写操作之间，写与写操作之间，写与读操作之间是串行的！
+当一个线程获得对一个表的写锁后，只有持有锁的线程可以对表进行更新操作。其他线程的读、写操作都会等待，直到锁被释放为止。
+表级锁，只有读与读之间是并行的。
+
+MyISAM在执行查询语句（SELECT）前，会自动给涉及的所有表加读锁，在执行更新操作（UPDATE、DELETE、INSERT等）前，会自动给涉及的表加写锁，这个过程并不需要用户干预，
+因此，用户一般不需要直接用LOCK TABLE命令给MyISAM表显式加锁。
+
+获得表film_text的WRITE锁定
+mysql> lock table film_text write;
+
+释放锁：
+mysql> unlock tables;
+
+如果不先给两个表加锁，就可能产生错误的结果，因为第一条语句执行过程中，order_detail表可能已经发生了改变。因此，正确的方法应该是：
+Lock tables orders read local, order_detail read local;
+Select sum(total) from orders;
+Select sum(subtotal) from order_detail;
+Unlock tables;
+--“local”选项，其作用就是在满足MyISAM表并发插入条件的情况下，允许其他用户在表尾并发插入记录
+--在用LOCK TABLES给表显式加表锁时，必须同时取得所有涉及到表的锁
+--MySQL不支持锁升级，如果加的是读锁，那么只能执行查询操作，而不能执行更新操作
+--MyISAM总是一次获得SQL语句所需要的全部锁。这也正是MyISAM表不会出现死锁（Deadlock Free）的原因。
+
+一个session使用LOCK TABLE命令给表film_text加了读锁，这个session可以查询锁定表中的记录，但更新或访问其他表都会提示错误；同时，另外一个session可以查询表中的记录，但更新就会出现锁等待。
+获得表film_text的READ锁定
+mysql> lock table film_text read;
+
+当使用LOCK TABLES时，不仅需要一次锁定用到的所有表，而且，同一个表在SQL语句中出现多少次，就要通过与SQL语句中相同的别名锁定多少次，否则也会出错！
+（1）对actor表获得读锁：
+mysql> lock table actor read;
+Query OK, 0 rows affected (0.00 sec)
+（2）但是通过别名访问会提示错误：
+mysql> select a.first_name,a.last_name,b.first_name,b.last_name from actor a,actor b where a.first_name = b.first_name and a.first_name = 'Lisa' and a.last_name = 'Tom' and a.last_name <> b.last_name;
+ERROR 1100 (HY000): Table 'a' was not locked with LOCK TABLES
+（3）需要对别名分别锁定：
+mysql> lock table actor as a read,actor as b read;
+Query OK, 0 rows affected (0.00 sec)
+（4）按照别名的查询可以正确执行：
+mysql> select a.first_name,a.last_name,b.first_name,b.last_name from actor a,actor b where a.first_name = b.first_name and a.first_name = 'Lisa' and a.last_name = 'Tom' and a.last_name <> b.last_name;
+
+并发插入
+MyISAM存储引擎有一个系统变量concurrent_insert，专门用以控制其并发插入的行为，其值分别可以为0、1或2。
+当concurrent_insert设置为0时，不允许并发插入。
+当concurrent_insert设置为1时，如果MyISAM表中没有空洞（即表的中间没有被删除的行），MyISAM允许在一个进程读表的同时，另一个进程从表尾插入记录。这也是MySQL的默认设置。
+当concurrent_insert设置为2时，无论MyISAM表中有没有空洞，都允许在表尾并发插入记录。
+session_1获得了一个表的READ LOCAL锁，该线程可以对表进行查询操作，但不能对表进行更新操作；其他的线程（session_2），虽然不能对表进行删除和更新操作，但却可以对该表进行并发插入操作，这里假设该表中间不存在空洞。
+
+MyISAM的锁调度
+锁等待队列
+一个进程请求某个 MyISAM表的读锁，同时另一个进程也请求同一表的写锁，MySQL如何处理呢？答案是写进程先获得锁。不仅如此，即使读请求先到锁等待队列，写请求后到，写锁也会插到读锁请求之前！这是因为MySQL认为写请求一般比读请求要重要。
+
+################################################################################################
+InnoDB锁问题
+################################################################################################
+InnoDB与MyISAM的最大不同有两点：一是支持事务（TRANSACTION）；二是采用了行级锁。行级锁与表级锁本来就有许多不同之处，另外，事务的引入也带来了一些新问题。下面我们先介绍一点背景知识，然后详细讨论InnoDB的锁问题。
+
+获取InnoDB行锁争用情况
+mysql> show status like 'innodb_row_lock%';
+如果发现锁争用比较严重，如InnoDB_row_lock_waits和InnoDB_row_lock_time_avg的值比较高
+
+InnoDB Monitors来进一步观察发生锁冲突的表、数据行等，并分析锁争用的原因。
+具体方法如下：
+mysql> CREATE TABLE innodb_monitor(a INT) ENGINE=INNODB;
+然后就可以用下面的语句来进行查看：
+mysql> show innodb status\G;
+
+InnoDB的行锁模式及加锁方法
+共享锁（S）：允许一个事务去读一行，阻止其他事务获得相同数据集的排他锁。
+排他锁（X)：允许获得排他锁的事务更新数据，阻止其他事务取得相同数据集的共享读锁和排他写锁。
+另外，为了允许行锁和表锁共存，实现多粒度锁机制，InnoDB还有两种内部使用的意向锁（Intention Locks），这两种意向锁都是表锁。
+意向共享锁（IS）：事务打算给数据行加行共享锁，事务在给一个数据行加共享锁前必须先取得该表的IS锁。
+意向排他锁（IX）：事务打算给数据行加行排他锁，事务在给一个数据行加排他锁前必须先取得该表的IX锁。
+
+意向锁是InnoDB自动加的，不需用户干预。对于UPDATE、DELETE和INSERT语句，InnoDB会自动给涉及数据集加排他锁（X)；对于普通SELECT语句，InnoDB不会加任何锁；事务可以通过以下语句显示给记录集加共享锁或排他锁。
+共享锁（S）：SELECT * FROM table_name WHERE ... LOCK IN SHARE MODE。
+排他锁（X)：SELECT * FROM table_name WHERE ... FOR UPDATE。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

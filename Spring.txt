@@ -116,8 +116,14 @@ But if you define your own SpringTemplateEngine with your own settings, then Spr
  
  
 spring MVC
-(1)web程序工作原理
-(2)Spring MVC三个层次的处理。
+Spring Web MVC框架也是一个基于请求驱动的Web框架
+使用了前端控制器模式来进行设计，再根据请求映射规则分发给相应的页面控制器（动作/处理器）进行处理。
+spring MVC核心组件：
+(1)前端控制器（请求分发器）:org.springframework.web.servlet.DispatcherServlet
+(2)请求映射规则：使用注解的方式配置在Controller的方法中
+(3)请求处理器：@Controller注解的类。一个请求处理器会负责处理一组url映射。
+(4)视图模板：thymleaf、jsp模板文件，+一些静态css、js资源
+
 Spring Security
 Spring BATCH
 结合etl shell脚本谈谈
