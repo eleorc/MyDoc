@@ -1,0 +1,14 @@
+1 前端
+1.0 Nodejs：js运行环境
+npm 包管理系统
+代表项目：webpack。类似java的maven或ant中的构建过程
+1.1构建工具
+webpack
+1.2报表工具
+Echart
+
+
+2 大数据
+2.0 hadoop 
+2.1 yarn
+2.2 spark
