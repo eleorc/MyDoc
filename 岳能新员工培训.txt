@@ -1,0 +1,59 @@
+表名约定：
+业务模块表名应遵守以下规则：统一使用'TB_模块缩写_'作为表的前缀，前缀后面加表的名称。
+例如：计算平台模块表名： TB_CAL_XXXX_XXXX。
+平台表名应遵守以下规则：统一使用’ TP_{$ModuleName}_’作为表的前缀，前缀后面加表的名称，其中{$ ModuleName }代表各自的模块名称.
+例如：TP_SYS_USER
+
+字段名
+统一使用'C_'作为字段名的前缀，前缀后面加上字段的名称信息
+例如：C_XXX_XXX
+
+表设计工具：PB？
+
+ORM层,mybatis层
+mybatis配置文件位置mybatis.config.xml
+--使用了分页方言，需要对应在datasource中配置对应的数据库
+各功能模块的配置文件中，要写原生的sql
+各模块配置文件举例说明，function.xml 
+实体类的标签@Alias("SysFunction")-->配置文件<resultMap type="SysFunction" id="SysFunction_temp">
+<select id="findAll" resultMap="SysFunction_temp">
+...
+<select id="findByCondition"><include refid="com.aptech.dao.base.conditionSql"/></select>
+aptech-framework/src/main/resources/config/base.xml 做了什么来支持动态sql查询
+Condition类型抽象了where条件，API service.findByCondition(conditions,pages)
+
+模块代码组织
+模块名
+--dao
+----接口
+----impl
+--domain
+--service
+--web
+
+DAO层
+公司封装的接口IBaseEntityOperation，需要开发DAO时继承
+实现类父类为AncestorDao，不往OPERATION_LOG中写日志
+BaseDao，记录操作日志OPERATION_LOG表中记录DML操作
+两个父类都实现了IBaseEntityOperation接口中基本操作
+继承AncestorDao需要实现getNameSpace方法
+注解@Repository("sysuserDao")
+
+Entity
+继承BaseEntity
+标签形式的校验@NotNull
+
+Service
+接口继承IBaseEntityOperation
+实现类继承AbstractBaseEntityOperation
+后端校验做在service层，使用了hibernate validation
+注解@Service("sysUserService")接口名的第一个字母小写
+@Transactional
+需要实现getDao方法，返回该service自己的dao
+
+controler层，web层
+继承BaseController
+页面路径web-inf/views
+@ResponseBody标签代表一个ajax返回,@RequestBody会把请求中的数据转换成javaMap对象
+
+分页
