@@ -1,0 +1,5 @@
+docker login --username=eleorc registry.cn-hangzhou.aliyuncs.com
+
+docker push registry.cn-hangzhou.aliyuncs.com/djl/test:test
+
+docker rmi -f hub.doge.com/ubuntu:latest
