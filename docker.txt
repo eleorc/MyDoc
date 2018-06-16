@@ -1,5 +1,60 @@
+#创建mysql容器
+docker run --name zhsw -p 3307:3306  -v /home/mysql/data:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=root -d mysql
+
+
 docker login --username=eleorc registry.cn-hangzhou.aliyuncs.com
 
 docker push registry.cn-hangzhou.aliyuncs.com/djl/test:test
 
-docker rmi -f hub.doge.com/ubuntu:latest
+#Get Started, Part 2: Containers
+#start deamon
+sudo systemctl start docker
+#Verify
+sudo docker run hello-world
+#Build the app
+docker build -t friendlyhello .
+docker image ls
+#Run the app
+docker run -p 4000:80 friendlyhello
+curl http://localhost:4000
+#Now let’s run the app in the background, in detached mode:
+docker run -d -p 4000:80 friendlyhello
+docker container ls
+#Log in with your Docker ID
+sudo docker login --username=eleorc registry.cn-hangzhou.aliyuncs.com
+#Tag the image
+docker tag image username/repository:tag
+#Publish the image
+docker push username/repository:tag
+
+
+#Create a swarm
+docker swarm init --advertise-addr <MANAGER-IP>
+#Run docker info to view the current state of the swarm:
+docker info
+docker node ls
+
+
+#挂在宿主文件系统到容器，并以交互式方式启动。
+docker run -v /home/java-docker:/mnt  -t -i maven /bin/sh
+
+#部署一个spring boot应用到maven镜像中。
+
+
+#安装OpenSSH服务(CentOS系统默认安装了openssh)
+yum install openssh-server -y
+
+#生成ssh key 
+sudo ssh-keygen -t rsa -f /etc/ssh/ssh_host_rsa_key
+sudo ssh-keygen -t dsa -f /etc/ssh/ssh_host_dsa_key
+sudo ssh-keygen -t ecdsa -f /etc/ssh/ssh_host_ecdsa_key 
+
+#退出，但不停止容器
+Ctrl+P+Q
+#回到Docker下面，停止容器
+docker stop <容器ID>
+#提交当前容器到镜像
+docker commit <容器ID> <NAME/VERSION>
+#启动新容器，并且进行端口映射
+docker run -itd -p 2222:22 centos-sshd /usr/sbin/sshd -D
+
