@@ -1,0 +1,5 @@
+git cheet sheet
+
+1.克隆远程仓库
+git clone git@github.com:eleorc/MyDoc.git
+
